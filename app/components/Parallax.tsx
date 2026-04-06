@@ -130,7 +130,7 @@ export const Parallax = () => {
           }}
           variants={itemVariants}
         >
-          Nerea Lopez
+          El miedo a volar
         </motion.h1>
 
         <motion.a

@@ -13,9 +13,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nerea Lopez | Digital Artist",
+  title: "El miedo a volar | Illustrator",
   description:
-    "Portfolio of Nerea Lopez — digital artist & illustrator. Character design, commissions, and painterly illustration.",
+    "Portfolio of El miedo a volar — digital artist & illustrator. Character design, commissions, and painterly illustration.",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
