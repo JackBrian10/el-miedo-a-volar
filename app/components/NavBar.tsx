@@ -29,15 +29,10 @@ export const NavBar = () => {
   return (
     <>
       <motion.nav
-        className="fixed top-0 z-50 w-full flex items-center justify-between px-4 sm:px-8 h-32"
+        className="absolute top-0 z-50 w-full flex items-center justify-between px-4 sm:px-8 h-18"
         animate={{
-          backgroundColor: scrolled || menuOpen
-            ? "rgba(250, 247, 242, 0.97)"
-            : "rgba(0, 0, 0, 0)",
-          backdropFilter: scrolled || menuOpen ? "blur(12px)" : "blur(0px)",
-          boxShadow: scrolled || menuOpen
-            ? "0 4px 30px rgba(0,0,0,0.08)"
-            : "0 0 0 rgba(0,0,0,0)",
+          backgroundColor: menuOpen ? "rgba(250, 247, 242, 0.97)" : "rgba(0,0,0,0)",
+          backdropFilter: menuOpen ? "blur(12px)" : "blur(0px)",
         }}
         transition={{ duration: 0.3 }}
       >
@@ -46,8 +41,8 @@ export const NavBar = () => {
           <img
             src="/logo.webp"
             alt="el miedo a volar"
-            className="h-28 w-auto"
-            style={{ mixBlendMode: "multiply" }}
+            className="h-14 w-auto"
+            style={{ mixBlendMode: scrolled ? "normal" : "multiply" }}
           />
         </a>
 
@@ -61,7 +56,7 @@ export const NavBar = () => {
             >
               <motion.span
                 className="block"
-                animate={{ color: scrolled ? "rgba(28,26,22,0.8)" : "rgba(255,255,255,0.8)" }}
+                animate={{ color: scrolled ? "rgba(28,26,22,0.8)" : "rgba(255,255,255,0.9)" }}
                 whileHover={{ color: "#C91F00", y: -1 }}
                 transition={{ duration: 0.15 }}
               >

@@ -142,7 +142,7 @@ export const Illustrations = () => {
               <img
                 src={selected.image_url}
                 alt={selected.title}
-                className="w-full rounded-2xl shadow-2xl"
+                className="max-w-full max-h-[75vh] rounded-2xl shadow-2xl object-contain mx-auto"
               />
               <motion.div
                 className="mt-4 text-center"
