@@ -50,8 +50,8 @@ const ParallaxLayer = ({
 
   return (
     <motion.div
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ y, zIndex, willChange: "transform" }}
+      className="absolute inset-x-0 w-full pointer-events-none"
+      style={{ y, zIndex, willChange: "transform", top: "-15%", height: "130%" }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -74,7 +74,8 @@ export const Parallax = () => {
   return (
     <div
       ref={sectionRef}
-      className="relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-[#1a1428]"
+      className="relative w-full h-screen flex items-center justify-center bg-[#1a1428]"
+      style={{ clipPath: "inset(0)" }}
     >
       {layers.map((layer, i) => (
         <ParallaxLayer
@@ -86,6 +87,15 @@ export const Parallax = () => {
           scrollYProgress={scrollYProgress}
         />
       ))}
+
+      {/* Bottom fade to next section */}
+      <div
+        className="absolute bottom-0 left-0 w-full h-16 pointer-events-none"
+        style={{
+          zIndex: 40,
+          background: "linear-gradient(to bottom, transparent, #faf7f2)",
+        }}
+      />
 
       {/* Text — above all layers */}
       <motion.div
