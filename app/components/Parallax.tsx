@@ -10,15 +10,15 @@ const layers: {
   speed: number;
   blend?: React.CSSProperties["mixBlendMode"];
 }[] = [
-  { file: "layer_02_sky.png",        speed: 0.04 },
-  { file: "layer_01_stars.png",      speed: 0.08,  blend: "multiply" },
-  { file: "layer_03_wings.png",      speed: 0.12,  blend: "multiply" },
-  { file: "layer_04_forest.png",     speed: 0.20 },
-  { file: "layer_05_ground.png",     speed: 0.30 },
-  { file: "layer_06_birds.png",      speed: 0.38,  blend: "multiply" },
-  { file: "layer_07_fireflies.png",  speed: 0.46,  blend: "multiply" },
-  { file: "layer_08_campfire.png",   speed: 0.55,  blend: "multiply" },
-  { file: "layer_09_fairy.png",      speed: 0.65 },
+  { file: "layer_02_sky.webp",        speed: 0.04 },
+  { file: "layer_01_stars.webp",      speed: 0.08,  blend: "multiply" },
+  { file: "layer_03_wings.webp",      speed: 0.12,  blend: "multiply" },
+  { file: "layer_04_forest.webp",     speed: 0.20 },
+  { file: "layer_05_ground.webp",     speed: 0.30 },
+  { file: "layer_06_birds.webp",      speed: 0.38,  blend: "multiply" },
+  { file: "layer_07_fireflies.webp",  speed: 0.46,  blend: "multiply" },
+  { file: "layer_08_campfire.webp",   speed: 0.55,  blend: "multiply" },
+  { file: "layer_09_fairy.webp",      speed: 0.65 },
 ];
 
 const containerVariants = {
