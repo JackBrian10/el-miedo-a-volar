@@ -33,13 +33,18 @@ function SortableCard({
   isDeleting,
   onMoveUp,
   onMoveDown,
+  onRenameTitle,
 }: {
   item: Illustration;
   onDelete: (id: string, imageUrl: string) => void;
   isDeleting: boolean;
   onMoveUp: () => void;
   onMoveDown: () => void;
+  onRenameTitle: (id: string, title: string) => void;
 }) {
+  const [editing, setEditing] = useState(false);
+  const [titleValue, setTitleValue] = useState(item.title);
+
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: item.id });
 
@@ -84,7 +89,24 @@ function SortableCard({
         />
       </div>
       <div className="p-2">
-        <p className="text-foreground/50 text-xs truncate">{item.title}</p>
+        {editing ? (
+          <input
+            autoFocus
+            value={titleValue}
+            onChange={(e) => setTitleValue(e.target.value)}
+            onBlur={() => { setEditing(false); onRenameTitle(item.id, titleValue); }}
+            onKeyDown={(e) => { if (e.key === "Enter") { setEditing(false); onRenameTitle(item.id, titleValue); } if (e.key === "Escape") { setEditing(false); setTitleValue(item.title); } }}
+            className="w-full text-xs bg-background border border-accent/30 rounded px-1.5 py-0.5 text-foreground outline-none focus:border-accent"
+          />
+        ) : (
+          <p
+            className="text-foreground/50 text-xs truncate cursor-pointer hover:text-accent transition-colors"
+            title="Click to edit title"
+            onClick={() => setEditing(true)}
+          >
+            {titleValue}
+          </p>
+        )}
       </div>
 
       {/* Delete button — always visible on mobile, hover on desktop */}
@@ -142,6 +164,11 @@ export default function AdminPage() {
       .select("id, title, image_url, display_order")
       .order("display_order");
     if (data) setIllustrations(data);
+  };
+
+  const handleRenameTitle = async (id: string, title: string) => {
+    await supabaseAuth.from("illustrations").update({ title }).eq("id", id);
+    setIllustrations((prev) => prev.map((i) => i.id === id ? { ...i, title } : i));
   };
 
   const handleMove = async (id: string, direction: "up" | "down") => {
@@ -354,6 +381,7 @@ export default function AdminPage() {
                   isDeleting={deletingId === item.id}
                   onMoveUp={() => handleMove(item.id, "up")}
                   onMoveDown={() => handleMove(item.id, "down")}
+                  onRenameTitle={handleRenameTitle}
                 />
               ))}
             </div>
