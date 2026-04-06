@@ -3,7 +3,12 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 
-const skills = ["Character Design", "Digital Illustration", "Painterly Style", "OC Art"];
+const skills = [
+  "Character Design",
+  "Digital Illustration",
+  "Painterly Style",
+  "OC Art",
+];
 
 export const AboutMe = () => {
   const ref = useRef(null);
@@ -22,12 +27,11 @@ export const AboutMe = () => {
           <div className="w-16 h-0.5 bg-accent mb-6" />
 
           <p className="text-foreground/70 text-base leading-relaxed mb-8">
-            Hello! I am Nerea Lopez, a passionate artist and illustrator
-            specializing in digital art and character design. With a keen eye for
-            detail and a love for vibrant colors, I strive to bring my creations to
-            life in unique and captivating ways. When I am not drawing, you can find
-            me exploring new art techniques or immersing myself in nature for
-            inspiration.
+            I&apos;ve always had fear of flying, irrational fear. That fear has
+            been with me all the time even though I fly due to my love for
+            traveling. I carried the same fear when I thought of sharing my
+            ideas to the world. Fear should not have the power to stop us from
+            doing what we love, one step at a time.
           </p>
 
           {/* Skill badges */}
@@ -61,7 +65,9 @@ export const AboutMe = () => {
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
           className="hidden md:flex items-center justify-center bg-card border border-accent/20 rounded-2xl h-72"
         >
-          <span className="text-[8rem] text-accent/20 select-none leading-none">✦</span>
+          <span className="text-[8rem] text-accent/20 select-none leading-none">
+            ✦
+          </span>
         </motion.div>
       </div>
     </div>

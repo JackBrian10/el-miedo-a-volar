@@ -32,12 +32,14 @@ export const NavBar = () => {
       }}
       transition={{ duration: 0.3 }}
     >
-      <a
-        href="#"
-        className="font-bold text-lg tracking-wide hover:opacity-80 transition-opacity"
-        style={{ color: scrolled ? "#d4621a" : "rgba(255,255,255,0.9)" }}
-      >
-        elmiedoavolar
+      <a href="#" className="hover:opacity-80 transition-opacity">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/logo.webp"
+          alt="el miedo a volar"
+          className="h-24 w-auto"
+          style={{ mixBlendMode: "multiply" }}
+        />
       </a>
 
       <div className="flex items-center gap-8">
@@ -50,7 +52,7 @@ export const NavBar = () => {
           >
             <motion.span
               className="block"
-              whileHover={{ color: scrolled ? "#d4621a" : "#ffffff", y: -1 }}
+              whileHover={{ color: scrolled ? "#C91F00" : "#ffffff", y: -1 }}
               transition={{ duration: 0.15 }}
             >
               {link.label}

@@ -11,7 +11,8 @@
       "Bash(cp \"/Users/brian.arias/Library/CloudStorage/GoogleDrive-brian.arias@wizeline.com/My Drive/el-miedo-a-volar/Parallax/IMG_2846.png\" \"/Users/brian.arias/VibeCoding/el-miedo-a-volar/public/parallax_layers/layer_04_forest.png\")",
       "Bash(cp \"/Users/brian.arias/Library/CloudStorage/GoogleDrive-brian.arias@wizeline.com/My Drive/el-miedo-a-volar/Parallax/IMG_2845.png\" \"/Users/brian.arias/VibeCoding/el-miedo-a-volar/public/parallax_layers/layer_05_ground.png\")",
       "Bash(ls:*)",
-      "Bash(cwebp:*)"
+      "Bash(cwebp:*)",
+      "Bash(sort -k5 -rh)"
     ]
   }
 }

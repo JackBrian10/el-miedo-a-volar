@@ -5,39 +5,29 @@ import { useRef } from "react";
 
 const tiers = [
   {
-    id: "sketch",
-    icon: "✏️",
-    name: "Sketch",
-    price: "From $25 USD",
+    id: "full-illustration",
+    name: "Full Illustration",
+    price: "125€",
+    note: "Negotiable bundle option",
     features: [
-      "Flat colors",
-      "Simple background",
-      "1 character",
-      "1 revision round",
+      "Full color",
+      "Full background",
+      "1 character (+10€/ extra character)",
+      "Timing: 30 days (depending on complexity)",
+      "Revisions: 2 (1 on sketch, 1 in color)",
     ],
   },
   {
-    id: "illustration",
-    icon: "🎨",
-    name: "Illustration",
-    price: "From $60 USD",
+    id: "spot-illustration",
+    name: "Spot Illustration",
+    price: "70€",
+    note: null,
     features: [
-      "Full render & shading",
-      "Detailed character",
-      "Simple background",
-      "2 revision rounds",
-    ],
-  },
-  {
-    id: "full-piece",
-    icon: "✦",
-    name: "Full Piece",
-    price: "From $120 USD",
-    features: [
-      "Complex scene",
-      "Detailed background",
-      "Multiple characters",
-      "3 revision rounds",
+      "Full color",
+      "No background",
+      "Character/items (+10€/ extra character)",
+      "Timing: 30 days (depending on complexity)",
+      "Revisions: 2 (1 on sketch, 1 in color)",
     ],
   },
 ];
@@ -75,33 +65,29 @@ export const Commissions = () => {
             Bring your characters to life
           </p>
           {/* Status badge */}
-          <span className="inline-block bg-green-900/40 text-green-400 border border-green-500/30 rounded-full px-4 py-1 text-xs font-semibold tracking-wide">
-            ● Commissions: OPEN
+          <span className="inline-block bg-accent/10 text-accent border border-accent/30 rounded-full px-4 py-1 text-xs font-semibold tracking-wide">
+            ● Commissions Open
           </span>
         </motion.div>
 
         {/* Tier cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-12">
+        <div className="flex flex-col sm:flex-row gap-6 mt-12 max-w-3xl mx-auto w-full">
           {tiers.map((tier) => (
             <motion.div
               key={tier.id}
               variants={itemVariants}
-              whileHover={{
-                y: -6,
-                borderColor: "rgba(232,184,109,0.5)",
-                boxShadow: "0 24px 48px rgba(232,184,109,0.12)",
-              }}
-              className="bg-card border border-accent/20 rounded-2xl p-6 flex flex-col gap-4"
+              whileHover={{ y: -4, boxShadow: "0 24px 48px rgba(201,31,0,0.08)" }}
+              className="bg-card border border-accent/20 rounded-2xl p-6 flex flex-col gap-3 flex-1"
             >
-              <div className="text-3xl">{tier.icon}</div>
               <div>
-                <h3 className="text-accent font-bold text-lg">{tier.name}</h3>
-                <p className="text-foreground font-bold text-xl mt-1">{tier.price}</p>
+                <h3 className="text-accent font-bold text-lg uppercase tracking-wide">{tier.name} — {tier.price}</h3>
+                {tier.note && <p className="text-foreground/40 text-xs mt-0.5">— {tier.note}</p>}
               </div>
-              <ul className="flex flex-col gap-2 flex-1">
+              <p className="text-foreground/60 text-sm font-medium">Includes:</p>
+              <ul className="flex flex-col gap-1.5">
                 {tier.features.map((f) => (
-                  <li key={f} className="text-foreground/60 text-sm flex items-center gap-2">
-                    <span className="text-accent/60">—</span> {f}
+                  <li key={f} className="text-foreground/60 text-sm flex items-start gap-2">
+                    <span className="text-accent/50 mt-0.5">–</span> {f}
                   </li>
                 ))}
               </ul>
@@ -109,11 +95,19 @@ export const Commissions = () => {
           ))}
         </div>
 
+        <motion.p variants={itemVariants} className="text-foreground/40 text-xs italic text-center mt-6">
+          50% upfront payment via PayPal after sketch approval
+        </motion.p>
+
         {/* CTA */}
         <motion.div variants={itemVariants} className="mt-12 flex flex-col items-center gap-4">
           <motion.a
             href="#contact"
-            className="bg-accent text-background font-bold px-10 py-4 rounded-full text-sm tracking-wide hover:bg-accent/90 transition-colors duration-200"
+            onClick={(e) => {
+              e.preventDefault();
+              document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" });
+            }}
+            className="bg-accent text-white font-bold px-10 py-4 rounded-full text-sm tracking-wide hover:bg-accent/90 transition-colors duration-200"
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.97 }}
           >

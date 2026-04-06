@@ -3,8 +3,8 @@
 :root {
   --background: #faf7f2;
   --foreground: #1c1a16;
-  --accent: #d4621a;
-  --secondary: #e08050;
+  --accent: #C91F00;
+  --secondary: #F4AD2E;
   --card: #f0ebe2;
 }
 
@@ -41,6 +41,6 @@ body {
 }
 
 @keyframes glow-pulse {
-  0% { text-shadow: 0 0 20px rgba(212, 98, 26, 0.2), 0 0 40px rgba(212, 98, 26, 0.08); }
-  100% { text-shadow: 0 0 60px rgba(212, 98, 26, 0.5), 0 0 100px rgba(212, 98, 26, 0.2); }
+  0% { text-shadow: 0 0 20px rgba(201, 31, 0, 0.2), 0 0 40px rgba(201, 31, 0, 0.08); }
+  100% { text-shadow: 0 0 60px rgba(201, 31, 0, 0.5), 0 0 100px rgba(201, 31, 0, 0.2); }
 }
