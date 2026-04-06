@@ -3,25 +3,22 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import React, { useRef } from "react";
 
-const layers: { file: string; speed: number; blend?: string; opacity?: number }[] = [
-  { file: "image00001.png", speed: 0.06 },
-  { file: "image00002.png", speed: 0.10 },
-  { file: "image00003.png", speed: 0.16 },
-  { file: "image00004.png", speed: 0.20 },
-  { file: "image00005.png", speed: 0.26 },
-  { file: "image00006.png", speed: 0.28 },
-  { file: "image00007.png", speed: 0.33 },
-  { file: "image00008.png", speed: 0.36 },
-  { file: "image00009.png", speed: 0.40 },
-  { file: "image00010.png", speed: 0.40 },
-  { file: "image00011.png", speed: 0.43 },
-  { file: "image00012.png", speed: 0.43 },
-  { file: "image00013.png", speed: 0.46 },
-  { file: "image00015.png", speed: 0.53, blend: "multiply" },
-  { file: "image00016.png", speed: 0.60, blend: "multiply" },
-  { file: "image00018.png", speed: 0.68 },
-  { file: "image00019.png", speed: 0.73 },
-  { file: "image00020.png", speed: 0.80 },
+// Layers ordered back to front
+// blend: "multiply" knocks out white backgrounds
+const layers: {
+  file: string;
+  speed: number;
+  blend?: React.CSSProperties["mixBlendMode"];
+}[] = [
+  { file: "layer_02_sky.png",        speed: 0.04 },
+  { file: "layer_01_stars.png",      speed: 0.08,  blend: "multiply" },
+  { file: "layer_03_wings.png",      speed: 0.12,  blend: "multiply" },
+  { file: "layer_04_forest.png",     speed: 0.20 },
+  { file: "layer_05_ground.png",     speed: 0.30 },
+  { file: "layer_06_birds.png",      speed: 0.38,  blend: "multiply" },
+  { file: "layer_07_fireflies.png",  speed: 0.46,  blend: "multiply" },
+  { file: "layer_08_campfire.png",   speed: 0.55,  blend: "multiply" },
+  { file: "layer_09_fairy.png",      speed: 0.65 },
 ];
 
 const containerVariants = {
@@ -41,14 +38,12 @@ const ParallaxLayer = ({
   speed,
   zIndex,
   blend,
-  opacity,
   scrollYProgress,
 }: {
   file: string;
   speed: number;
   zIndex: number;
-  blend?: string;
-  opacity?: number;
+  blend?: React.CSSProperties["mixBlendMode"];
   scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"];
 }) => {
   const y = useTransform(scrollYProgress, [0, 1], ["0%", `${-speed * 80}%`]);
@@ -56,18 +51,16 @@ const ParallaxLayer = ({
   return (
     <motion.div
       className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{
-        y,
-        zIndex,
-        opacity: opacity ?? 1,
-        backgroundImage: `url('/parallax_layers/${file}')`,
-        backgroundSize: "cover",
-        backgroundPosition: "center center",
-        backgroundRepeat: "no-repeat",
-        willChange: "transform",
-        mixBlendMode: (blend ?? "normal") as React.CSSProperties["mixBlendMode"],
-      }}
-    />
+      style={{ y, zIndex, willChange: "transform" }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={`/parallax_layers/${file}`}
+        alt=""
+        className="w-full h-full object-cover"
+        style={{ mixBlendMode: blend ?? "normal" }}
+      />
+    </motion.div>
   );
 };
 
@@ -90,7 +83,6 @@ export const Parallax = () => {
           speed={layer.speed}
           zIndex={i + 1}
           blend={layer.blend}
-          opacity={layer.opacity}
           scrollYProgress={scrollYProgress}
         />
       ))}

@@ -4,7 +4,12 @@
       "Bash(node:*)",
       "Bash(npm info:*)",
       "Bash(npm install:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(cp \"/Users/brian.arias/Library/CloudStorage/GoogleDrive-brian.arias@wizeline.com/My Drive/el-miedo-a-volar/Parallax/IMG_2841.png\" \"/Users/brian.arias/VibeCoding/el-miedo-a-volar/public/parallax_layers/layer_01_stars.png\")",
+      "Bash(cp \"/Users/brian.arias/Library/CloudStorage/GoogleDrive-brian.arias@wizeline.com/My Drive/el-miedo-a-volar/Parallax/IMG_2844.png\" \"/Users/brian.arias/VibeCoding/el-miedo-a-volar/public/parallax_layers/layer_02_sky.png\")",
+      "Bash(cp \"/Users/brian.arias/Library/CloudStorage/GoogleDrive-brian.arias@wizeline.com/My Drive/el-miedo-a-volar/Parallax/IMG_2848.png\" \"/Users/brian.arias/VibeCoding/el-miedo-a-volar/public/parallax_layers/layer_03_wings.png\")",
+      "Bash(cp \"/Users/brian.arias/Library/CloudStorage/GoogleDrive-brian.arias@wizeline.com/My Drive/el-miedo-a-volar/Parallax/IMG_2846.png\" \"/Users/brian.arias/VibeCoding/el-miedo-a-volar/public/parallax_layers/layer_04_forest.png\")",
+      "Bash(cp \"/Users/brian.arias/Library/CloudStorage/GoogleDrive-brian.arias@wizeline.com/My Drive/el-miedo-a-volar/Parallax/IMG_2845.png\" \"/Users/brian.arias/VibeCoding/el-miedo-a-volar/public/parallax_layers/layer_05_ground.png\")"
     ]
   }
 }
