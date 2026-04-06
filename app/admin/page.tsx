@@ -31,10 +31,14 @@ function SortableCard({
   item,
   onDelete,
   isDeleting,
+  onMoveUp,
+  onMoveDown,
 }: {
   item: Illustration;
   onDelete: (id: string, imageUrl: string) => void;
   isDeleting: boolean;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: item.id });
@@ -52,11 +56,11 @@ function SortableCard({
       style={style}
       className="bg-card border border-accent/20 rounded-xl overflow-hidden group relative"
     >
-      {/* Drag handle */}
+      {/* Drag handle — desktop only */}
       <div
         {...attributes}
         {...listeners}
-        className="absolute top-2 left-2 z-10 bg-white/80 rounded-full w-7 h-7 flex items-center justify-center cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute top-2 left-2 z-10 bg-white/80 rounded-full w-7 h-7 items-center justify-center cursor-grab active:cursor-grabbing hidden sm:flex opacity-0 group-hover:opacity-100 transition-opacity"
         title="Drag to reorder"
       >
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -83,15 +87,29 @@ function SortableCard({
         <p className="text-foreground/50 text-xs truncate">{item.title}</p>
       </div>
 
-      {/* Delete button */}
+      {/* Delete button — always visible on mobile, hover on desktop */}
       <button
         onClick={() => onDelete(item.id, item.image_url)}
         disabled={isDeleting}
-        className="absolute top-2 right-2 bg-white/90 hover:bg-accent hover:text-white text-foreground/60 rounded-full w-7 h-7 flex items-center justify-center text-xs transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50"
+        className="absolute top-2 right-2 bg-white/90 hover:bg-accent hover:text-white text-foreground/60 rounded-full w-7 h-7 flex items-center justify-center text-xs transition-colors sm:opacity-0 sm:group-hover:opacity-100 disabled:opacity-50"
         title="Delete"
       >
         {isDeleting ? "..." : "✕"}
       </button>
+
+      {/* Mobile move buttons — always visible on mobile only */}
+      <div className="absolute top-2 left-2 flex flex-col gap-1 sm:hidden">
+        <button
+          onClick={onMoveUp}
+          className="bg-white/90 text-foreground/60 rounded-full w-7 h-7 flex items-center justify-center text-xs"
+          title="Move up"
+        >▲</button>
+        <button
+          onClick={onMoveDown}
+          className="bg-white/90 text-foreground/60 rounded-full w-7 h-7 flex items-center justify-center text-xs"
+          title="Move down"
+        >▼</button>
+      </div>
     </div>
   );
 }
@@ -103,24 +121,45 @@ export default function AdminPage() {
   const [illustrations, setIllustrations] = useState<Illustration[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [draggingOver, setDraggingOver] = useState(false);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   useEffect(() => {
-    supabaseAuth.auth.getUser().then(({ data: { user } }) => {
-      if (!user) router.push("/admin/login");
+    supabaseAuth.auth.getSession().then(({ data: { session } }) => {
+      console.log("Session:", session?.access_token ? "exists" : "missing");
+      if (!session) router.push("/admin/login");
     });
     fetchIllustrations();
   }, [router]);
 
   const fetchIllustrations = async () => {
-    const { data } = await supabase
+    const { data } = await supabaseAuth
       .from("illustrations")
       .select("id, title, image_url, display_order")
       .order("display_order");
     if (data) setIllustrations(data);
+  };
+
+  const handleMove = async (id: string, direction: "up" | "down") => {
+    const index = illustrations.findIndex((i) => i.id === id);
+    const newIndex = direction === "up" ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= illustrations.length) return;
+    const reordered = arrayMove(illustrations, index, newIndex).map((item, idx) => ({
+      ...item,
+      display_order: idx + 1,
+    }));
+    setIllustrations(reordered);
+    setSaving(true);
+    await Promise.all(
+      reordered.map((item) =>
+        supabaseAuth.from("illustrations").update({ display_order: item.display_order }).eq("id", item.id)
+      )
+    );
+    setSaving(false);
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -139,42 +178,64 @@ export default function AdminPage() {
 
     await Promise.all(
       reordered.map((item) =>
-        supabase.from("illustrations").update({ display_order: item.display_order }).eq("id", item.id)
+        supabaseAuth.from("illustrations").update({ display_order: item.display_order }).eq("id", item.id)
       )
     );
 
     setSaving(false);
   };
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
+  const resizeToWebP = (file: File, maxWidth = 1200): Promise<Blob> =>
+    new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        const scale = Math.min(1, maxWidth / img.width);
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("Conversion failed")), "image/webp", 0.82);
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+
+  const uploadFiles = async (files: FileList | File[]) => {
     if (!files || files.length === 0) return;
 
     setUploading(true);
     setUploadError(null);
 
     for (const file of Array.from(files)) {
-      const cleaned = file.name
+      const baseName = file.name
         .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        .replace(/\s+/g, "_").replace(/[()]/g, "").toLowerCase();
+        .replace(/\s+/g, "_").replace(/[()]/g, "").toLowerCase()
+        .replace(/\.[^.]+$/, "");
+      const cleaned = baseName + ".webp";
 
-      const ext = file.name.split(".").pop()?.toLowerCase();
-      const mimeType = ext === "webp" ? "image/webp" : ext === "png" ? "image/png" : "image/jpeg";
+      const webpBlob = await resizeToWebP(file).catch(() => null);
+      const uploadFile = webpBlob ?? file;
+      const mimeType = webpBlob ? "image/webp" : "image/jpeg";
 
-      const { error: uploadErr } = await supabase.storage
+      const { error: uploadErr } = await supabaseAuth.storage
         .from("illustrations")
-        .upload(cleaned, file, { contentType: mimeType, upsert: true });
+        .upload(cleaned, uploadFile, { contentType: mimeType, upsert: true });
 
       if (uploadErr) {
         setUploadError(`Upload failed: ${uploadErr.message}`);
         continue;
       }
 
-      const { data: urlData } = supabase.storage.from("illustrations").getPublicUrl(cleaned);
+      const { data: urlData } = supabaseAuth.storage.from("illustrations").getPublicUrl(cleaned);
       const title = cleaned.replace(/\.[^.]+$/, "").replace(/_/g, " ").trim();
       const nextOrder = illustrations.length + 1;
 
-      await supabase.from("illustrations").insert({
+      const { data: { session } } = await supabaseAuth.auth.getSession();
+      console.log("Insert with token:", session?.access_token?.slice(0, 20));
+
+      await supabaseAuth.from("illustrations").insert({
         title,
         image_url: urlData.publicUrl,
         display_order: nextOrder,
@@ -185,14 +246,20 @@ export default function AdminPage() {
     await fetchIllustrations();
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
+    setUploadSuccess(true);
+    setTimeout(() => setUploadSuccess(false), 3000);
+  };
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) await uploadFiles(e.target.files);
   };
 
   const handleDelete = async (id: string, imageUrl: string) => {
     if (!confirm("Delete this illustration?")) return;
     setDeletingId(id);
     const filename = imageUrl.split("/").pop()!;
-    await supabase.storage.from("illustrations").remove([filename]);
-    await supabase.from("illustrations").delete().eq("id", id);
+    await supabaseAuth.storage.from("illustrations").remove([filename]);
+    await supabaseAuth.from("illustrations").delete().eq("id", id);
     setIllustrations((prev) => prev.filter((i) => i.id !== id));
     setDeletingId(null);
   };
@@ -232,11 +299,25 @@ export default function AdminPage() {
         <div className="bg-card border border-accent/20 rounded-2xl p-6 mb-10">
           <h2 className="text-lg font-bold text-foreground mb-4">Upload Illustrations</h2>
           <div
-            className="border-2 border-dashed border-accent/30 rounded-xl p-8 text-center cursor-pointer hover:border-accent/60 transition-colors"
+            className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors ${
+              draggingOver
+                ? "border-accent bg-accent/5 scale-[1.01]"
+                : "border-accent/30 hover:border-accent/60"
+            }`}
             onClick={() => fileInputRef.current?.click()}
+            onDragOver={(e) => { e.preventDefault(); setDraggingOver(true); }}
+            onDragLeave={() => setDraggingOver(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDraggingOver(false);
+              if (e.dataTransfer.files.length > 0) uploadFiles(e.dataTransfer.files);
+            }}
           >
-            <p className="text-foreground/50 text-sm">Click to select images (PNG, JPG, WebP)</p>
-            <p className="text-foreground/30 text-xs mt-1">Multiple files supported</p>
+            <p className="text-3xl mb-3">{draggingOver ? "📂" : "🖼️"}</p>
+            <p className="text-foreground/60 text-sm font-medium">
+              {draggingOver ? "Drop to upload" : "Drag & drop images here"}
+            </p>
+            <p className="text-foreground/30 text-xs mt-1">or click to select — PNG, JPG, WebP</p>
           </div>
           <input
             ref={fileInputRef}
@@ -248,6 +329,9 @@ export default function AdminPage() {
           />
           {uploading && <p className="text-accent text-sm mt-3 text-center">Uploading...</p>}
           {uploadError && <p className="text-red-500 text-sm mt-3 text-center">{uploadError}</p>}
+          {uploadSuccess && (
+            <p className="text-green-600 text-sm mt-3 text-center font-medium">✓ Upload successful!</p>
+          )}
         </div>
 
         {/* Illustrations grid */}
@@ -268,6 +352,8 @@ export default function AdminPage() {
                   item={item}
                   onDelete={handleDelete}
                   isDeleting={deletingId === item.id}
+                  onMoveUp={() => handleMove(item.id, "up")}
+                  onMoveDown={() => handleMove(item.id, "down")}
                 />
               ))}
             </div>
