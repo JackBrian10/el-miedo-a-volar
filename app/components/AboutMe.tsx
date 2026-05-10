@@ -2,17 +2,12 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-
-const skills = [
-  "Character Design",
-  "Digital Illustration",
-  "Painterly Style",
-  "OC Art",
-];
+import { useLanguage } from "../lib/LanguageContext";
 
 export const AboutMe = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const { t } = useLanguage();
 
   return (
     <div className="w-full py-24 px-6 bg-[#f5efe6]" ref={ref}>
@@ -23,20 +18,16 @@ export const AboutMe = () => {
           animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <h2 className="text-4xl font-bold text-foreground mb-3">About Me</h2>
+          <h2 className="text-4xl font-bold text-foreground mb-3">{t.about.heading}</h2>
           <div className="w-16 h-0.5 bg-accent mb-6" />
 
           <p className="text-foreground/70 text-base leading-relaxed mb-8">
-            I&apos;ve always had fear of flying, irrational fear. That fear has
-            been with me all the time even though I fly due to my love for
-            traveling. I carried the same fear when I thought of sharing my
-            ideas to the world. Fear should not have the power to stop us from
-            doing what we love, one step at a time.
+            {t.about.body}
           </p>
 
           {/* Skill badges */}
           <div className="flex flex-wrap gap-2 mb-8">
-            {skills.map((skill) => (
+            {t.about.skills.map((skill: string) => (
               <span
                 key={skill}
                 className="bg-accent/10 text-accent border border-accent/30 rounded-full px-3 py-1 text-xs font-medium"
@@ -54,20 +45,23 @@ export const AboutMe = () => {
             className="text-foreground/50 text-sm tracking-wide hover:text-accent transition-colors duration-200"
             whileHover={{ color: "#d4621a" }}
           >
-            ↗ @elmiedoavolar on Instagram
+            {t.about.instagram}
           </motion.a>
         </motion.div>
 
-        {/* Right: decorative panel */}
+        {/* Right: photo */}
         <motion.div
           initial={{ opacity: 0, x: 30 }}
           animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-          className="hidden md:flex items-center justify-center bg-card border border-accent/20 rounded-2xl h-72"
+          className="hidden md:flex items-center justify-center"
         >
-          <span className="text-[8rem] text-accent/20 select-none leading-none">
-            ✦
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/about.jpg"
+            alt="Brian Arias Romero"
+            className="rounded-2xl object-cover w-full max-w-sm shadow-lg border border-accent/10"
+          />
         </motion.div>
       </div>
     </div>

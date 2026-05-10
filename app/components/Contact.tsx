@@ -1,8 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useLanguage } from "../lib/LanguageContext";
 
 export const Contact = () => {
+  const { t } = useLanguage();
+
   return (
     <div className="w-full py-24 px-6 bg-[#f5efe6]">
       <motion.div
@@ -13,10 +16,10 @@ export const Contact = () => {
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
         <div className="text-center mb-10">
-          <h2 className="text-4xl font-bold text-foreground mb-3">Contact Me</h2>
+          <h2 className="text-4xl font-bold text-foreground mb-3">{t.contact.heading}</h2>
           <div className="w-16 h-0.5 bg-accent mx-auto mb-4" />
           <p className="text-foreground/50 text-sm">
-            Have a project in mind? Let&apos;s create something magical together.
+            {t.contact.subheading}
           </p>
         </div>
 
@@ -30,42 +33,42 @@ export const Contact = () => {
           >
             <div className="flex flex-col gap-1">
               <label className="text-foreground/70 text-sm font-medium" htmlFor="name">
-                Name
+                {t.contact.name}
               </label>
               <input
                 className="bg-background border border-foreground/10 rounded-lg p-3 text-foreground placeholder:text-foreground/30 focus:border-accent/60 focus:outline-none focus:ring-1 focus:ring-accent/40 transition-colors duration-200"
                 type="text"
                 id="name"
                 name="name"
-                placeholder="Your name"
+                placeholder={t.contact.namePlaceholder}
                 required
               />
             </div>
 
             <div className="flex flex-col gap-1">
               <label className="text-foreground/70 text-sm font-medium" htmlFor="email">
-                Email
+                {t.contact.email}
               </label>
               <input
                 className="bg-background border border-foreground/10 rounded-lg p-3 text-foreground placeholder:text-foreground/30 focus:border-accent/60 focus:outline-none focus:ring-1 focus:ring-accent/40 transition-colors duration-200"
                 type="email"
                 id="email"
                 name="email"
-                placeholder="your@email.com"
+                placeholder={t.contact.emailPlaceholder}
                 required
               />
             </div>
 
             <div className="flex flex-col gap-1">
               <label className="text-foreground/70 text-sm font-medium" htmlFor="message">
-                Message
+                {t.contact.message}
               </label>
               <textarea
                 className="bg-background border border-foreground/10 rounded-lg p-3 text-foreground placeholder:text-foreground/30 focus:border-accent/60 focus:outline-none focus:ring-1 focus:ring-accent/40 transition-colors duration-200 resize-none"
                 id="message"
                 name="message"
                 rows={5}
-                placeholder="Tell me about your project..."
+                placeholder={t.contact.messagePlaceholder}
                 required
               />
             </div>
@@ -76,7 +79,7 @@ export const Contact = () => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
             >
-              Send Message
+              {t.contact.send}
             </motion.button>
           </form>
         </div>

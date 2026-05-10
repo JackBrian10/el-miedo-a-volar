@@ -2,23 +2,18 @@
 
 import { motion, useScroll, useTransform } from "framer-motion";
 import React, { useRef } from "react";
+import { useLanguage } from "../lib/LanguageContext";
 
 // Layers ordered back to front
-// blend: "multiply" knocks out white backgrounds
 const layers: {
   file: string;
   speed: number;
   blend?: React.CSSProperties["mixBlendMode"];
 }[] = [
   { file: "layer_02_sky.webp", speed: 0.04 },
-  { file: "layer_01_stars.webp", speed: 0.08, blend: "multiply" },
-  { file: "layer_03_wings.webp", speed: 0.12, blend: "multiply" },
   { file: "layer_04_forest.webp", speed: 0.2 },
-  { file: "layer_05_ground.webp", speed: 0.3 },
-  { file: "layer_06_birds.webp", speed: 0.38, blend: "multiply" },
-  { file: "layer_07_fireflies.webp", speed: 0.46, blend: "multiply" },
-  { file: "layer_08_campfire.webp", speed: 0.55, blend: "multiply" },
-  { file: "layer_09_fairy.webp", speed: 0.65 },
+  { file: "layer_05_ground.webp", speed: 0.35 },
+  { file: "layer_09_fairy.webp", speed: 0.6 },
 ];
 
 const containerVariants = {
@@ -80,6 +75,7 @@ export const Parallax = () => {
     target: sectionRef,
     offset: ["start start", "end start"],
   });
+  const { t } = useLanguage();
 
   return (
     <div
@@ -119,7 +115,7 @@ export const Parallax = () => {
           className="text-white/60 text-sm font-medium tracking-[0.25em] uppercase drop-shadow-md"
           variants={itemVariants}
         >
-          Illustration
+          {t.hero.label}
         </motion.p>
 
         <motion.h1
@@ -156,7 +152,7 @@ export const Parallax = () => {
           whileTap={{ scale: 0.97 }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
         >
-          View My Work
+          {t.hero.cta}
         </motion.a>
       </motion.div>
 
@@ -167,7 +163,7 @@ export const Parallax = () => {
         animate={{ y: [0, 8, 0] }}
         transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
       >
-        <span className="text-xs tracking-widest uppercase">Scroll</span>
+        <span className="text-xs tracking-widest uppercase">{t.hero.scroll}</span>
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <path
             d="M8 3L8 13M8 13L4 9M8 13L12 9"

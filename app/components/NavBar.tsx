@@ -2,18 +2,23 @@
 
 import { motion, useMotionValueEvent, useScroll, AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import { useLanguage } from "../lib/LanguageContext";
+import type { Locale } from "../lib/translations";
 
-const navLinks = [
-  { label: "Portfolio", href: "#portfolio" },
-  { label: "About", href: "#about" },
-  { label: "Commissions", href: "#commissions" },
-  { label: "Contact", href: "#contact" },
-];
+const locales: Locale[] = ["en", "es", "ca"];
 
 export const NavBar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { scrollY } = useScroll();
+  const { locale, setLocale, t } = useLanguage();
+
+  const navLinks = [
+    { label: t.nav.portfolio, href: "#portfolio" },
+    { label: t.nav.about, href: "#about" },
+    { label: t.nav.commissions, href: "#commissions" },
+    { label: t.nav.contact, href: "#contact" },
+  ];
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setScrolled(latest > 80);
@@ -46,7 +51,7 @@ export const NavBar = () => {
           />
         </a>
 
-        {/* Desktop links */}
+        {/* Desktop links + language switcher */}
         <div className="hidden sm:flex items-center gap-8">
           {navLinks.map((link) => (
             <a
@@ -65,6 +70,27 @@ export const NavBar = () => {
               <span className="absolute -bottom-0.5 left-0 w-full h-px bg-accent origin-center scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
             </a>
           ))}
+
+          {/* Language switcher */}
+          <div className="flex items-center gap-1">
+            {locales.map((l, i) => (
+              <span key={l} className="flex items-center gap-1">
+                <button
+                  onClick={() => setLocale(l)}
+                  className={`text-xs font-semibold tracking-wide uppercase transition-all duration-150 ${
+                    locale === l
+                      ? scrolled ? "text-accent" : "text-white"
+                      : scrolled ? "text-foreground/40 hover:text-accent" : "text-white/40 hover:text-white"
+                  }`}
+                >
+                  {l}
+                </button>
+                {i < locales.length - 1 && (
+                  <span className={`text-xs ${scrolled ? "text-foreground/20" : "text-white/20"}`}>|</span>
+                )}
+              </span>
+            ))}
+          </div>
         </div>
 
         {/* Hamburger button */}
@@ -114,6 +140,23 @@ export const NavBar = () => {
                 {link.label}
               </a>
             ))}
+
+            {/* Mobile language switcher */}
+            <div className="flex items-center gap-2 pt-2 border-t border-accent/10">
+              {locales.map((l) => (
+                <button
+                  key={l}
+                  onClick={() => setLocale(l)}
+                  className={`text-sm font-semibold uppercase tracking-wide px-2 py-1 rounded transition-colors duration-150 ${
+                    locale === l
+                      ? "text-accent bg-accent/10"
+                      : "text-foreground/40 hover:text-accent"
+                  }`}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

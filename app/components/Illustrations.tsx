@@ -3,6 +3,7 @@
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { useLanguage } from "../lib/LanguageContext";
 
 interface Illustration {
   id: string;
@@ -29,11 +30,16 @@ const cardVariants = {
   visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: "easeOut" as const } },
 };
 
+const INITIAL_COUNT = 4;
+const BATCH_SIZE = 4;
+
 export const Illustrations = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [illustrations, setIllustrations] = useState<Illustration[]>([]);
+  const { t } = useLanguage();
   const [selected, setSelected] = useState<Illustration | null>(null);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
 
   useEffect(() => {
     supabase
@@ -64,14 +70,14 @@ export const Illustrations = () => {
       >
         {/* Heading */}
         <motion.div variants={headingVariants} className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-foreground mb-3">Portfolio</h2>
+          <h2 className="text-4xl font-bold text-foreground mb-3">{t.portfolio.heading}</h2>
           <div className="w-16 h-0.5 bg-accent mx-auto" />
         </motion.div>
 
         {/* Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
           {illustrations.length === 0 ? (
-            Array.from({ length: 8 }).map((_, i) => (
+            Array.from({ length: INITIAL_COUNT }).map((_, i) => (
               <motion.div
                 key={i}
                 variants={cardVariants}
@@ -83,10 +89,12 @@ export const Illustrations = () => {
               </motion.div>
             ))
           ) : (
-            illustrations.map((item) => (
+            illustrations.slice(0, visibleCount).map((item) => (
               <motion.div
                 key={item.id}
                 variants={cardVariants}
+                initial="hidden"
+                animate="visible"
                 whileHover={{ y: -4, boxShadow: "0 20px 40px rgba(201,31,0,0.10)" }}
                 className="bg-card border border-accent/20 rounded-xl overflow-hidden cursor-pointer"
                 onClick={() => setSelected(item)}
@@ -108,6 +116,36 @@ export const Illustrations = () => {
             ))
           )}
         </div>
+
+        {/* Show More / Show Less */}
+        {illustrations.length > INITIAL_COUNT && (
+          <motion.div
+            className="flex justify-center mt-12"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            {visibleCount < illustrations.length ? (
+              <motion.button
+                onClick={() => setVisibleCount((c) => Math.min(c + BATCH_SIZE, illustrations.length))}
+                className="px-8 py-3 border-2 border-accent/40 text-foreground/70 rounded-full text-sm font-semibold tracking-wide hover:border-accent hover:text-accent transition-colors duration-200"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                {t.portfolio.showMore}
+              </motion.button>
+            ) : (
+              <motion.button
+                onClick={() => setVisibleCount(INITIAL_COUNT)}
+                className="px-8 py-3 border-2 border-accent/20 text-foreground/40 rounded-full text-sm font-semibold tracking-wide hover:border-accent/40 hover:text-foreground/70 transition-colors duration-200"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                {t.portfolio.showLess}
+              </motion.button>
+            )}
+          </motion.div>
+        )}
       </motion.div>
 
       {/* Lightbox */}
