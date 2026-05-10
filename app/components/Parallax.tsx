@@ -58,8 +58,8 @@ const PolaroidStack = ({ urls }: { urls: string[] }) => {
         return (
           <motion.div
             key={imgIdx}
-            className={`absolute bg-card p-3 pb-8 shadow-xl ${isFront ? "cursor-pointer" : ""}`}
-            style={{ top: 0, left: 0, width: "100%" }}
+            className={`absolute p-3 pb-8 shadow-xl ${isFront ? "cursor-pointer" : ""}`}
+            style={{ top: 0, left: 0, width: "100%", backgroundColor: "#f5f0eb" }}
             animate={
               isFront && animating
                 ? { x: 220, y: -80, rotate: 30, opacity: 0, zIndex: 10, scale: 0.9 }
