@@ -43,14 +43,8 @@ export const NavBar = () => {
         }}
         transition={{ duration: 0.3 }}
       >
-        <a href="#" className="hover:opacity-80 transition-opacity">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/logo.webp"
-            alt="el miedo a volar"
-            className="h-20 w-auto"
-            style={{ mixBlendMode: scrolled ? "normal" : "multiply" }}
-          />
+        <a href="#" className="font-bold text-lg tracking-tight bg-gradient-to-r from-accent via-secondary to-foreground bg-clip-text text-transparent">
+          elmiedoavolar
         </a>
 
         {/* Desktop links + language switcher */}

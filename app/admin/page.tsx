@@ -25,6 +25,7 @@ interface Illustration {
   title: string;
   image_url: string;
   display_order: number;
+  hero_polaroid: boolean;
 }
 
 function SortableCard({
@@ -161,9 +162,20 @@ export default function AdminPage() {
   const fetchIllustrations = async () => {
     const { data } = await supabaseAuth
       .from("illustrations")
-      .select("id, title, image_url, display_order")
+      .select("id, title, image_url, display_order, hero_polaroid")
       .order("display_order");
     if (data) setIllustrations(data);
+  };
+
+  const [polaroidSaved, setPolaroidSaved] = useState(false);
+
+  const handleTogglePolaroid = async (id: string, current: boolean) => {
+    const selected = illustrations.filter((i) => i.hero_polaroid);
+    if (!current && selected.length >= 3) return;
+    await supabaseAuth.from("illustrations").update({ hero_polaroid: !current }).eq("id", id);
+    setIllustrations((prev) => prev.map((i) => i.id === id ? { ...i, hero_polaroid: !current } : i));
+    setPolaroidSaved(true);
+    setTimeout(() => setPolaroidSaved(false), 2000);
   };
 
   const handleRenameTitle = async (id: string, title: string) => {
@@ -359,6 +371,51 @@ export default function AdminPage() {
           {uploadSuccess && (
             <p className="text-green-600 text-sm mt-3 text-center font-medium">✓ Upload successful!</p>
           )}
+        </div>
+
+        {/* Hero Polaroids */}
+        <div className="bg-card border border-accent/20 rounded-2xl p-6 mb-10">
+          <h2 className="text-lg font-bold text-foreground mb-1">Hero Polaroids</h2>
+          <p className="text-foreground/40 text-xs mb-4">Select exactly 3 illustrations to show in the hero banner. Click to toggle.</p>
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+            {illustrations.map((item) => {
+              const selected = item.hero_polaroid;
+              const maxReached = illustrations.filter((i) => i.hero_polaroid).length >= 3;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleTogglePolaroid(item.id, selected)}
+                  disabled={!selected && maxReached}
+                  className={`relative rounded-xl overflow-hidden border-2 transition-all duration-150 ${
+                    selected
+                      ? "border-accent scale-[1.03] shadow-lg"
+                      : maxReached
+                      ? "border-foreground/10 opacity-40 cursor-not-allowed"
+                      : "border-transparent hover:border-accent/40"
+                  }`}
+                  title={item.title}
+                >
+                  <div className="aspect-[3/4]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" loading="lazy" />
+                  </div>
+                  {selected && (
+                    <div className="absolute top-1 right-1 bg-accent text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                      {illustrations.filter((i) => i.hero_polaroid).indexOf(item) + 1}
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          <div className="flex items-center gap-3 mt-3">
+            <p className="text-foreground/30 text-xs">
+              {illustrations.filter((i) => i.hero_polaroid).length}/3 selected
+            </p>
+            {polaroidSaved && (
+              <p className="text-green-600 text-xs font-medium">✓ Saved</p>
+            )}
+          </div>
         </div>
 
         {/* Illustrations grid */}

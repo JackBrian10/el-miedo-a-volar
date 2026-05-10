@@ -1,26 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "../lib/LanguageContext";
+import { supabase } from "../lib/supabase";
 
-const ScrollIndicator = () => {
-  const { t } = useLanguage();
-  return (
-    <motion.div
-      className="absolute bottom-8 left-1/2 -translate-x-1/2 text-foreground/30 flex flex-col items-center gap-1 z-50"
-      animate={{ y: [0, 8, 0] }}
-      transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-    >
-      <span className="text-xs tracking-widest uppercase">{t.hero.scroll}</span>
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M8 3L8 13M8 13L4 9M8 13L12 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    </motion.div>
-  );
-};
-
-const polaroidUrls = [
+const FALLBACK_URLS = [
   "https://kowwnptiiukgcrsghhbn.supabase.co/storage/v1/object/public/illustrations/ilustracion_sin_titulo_4_1.webp",
   "https://kowwnptiiukgcrsghhbn.supabase.co/storage/v1/object/public/illustrations/4.webp",
   "https://kowwnptiiukgcrsghhbn.supabase.co/storage/v1/object/public/illustrations/ilustracion_sin_titulo_15.webp",
@@ -32,31 +17,44 @@ const stackOffsets = [
   { rotate: 10, x:  50, y: 20 },
 ];
 
-const PolaroidStack = () => {
+const PolaroidStack = ({ urls }: { urls: string[] }) => {
   const [frontIdx, setFrontIdx] = useState(2);
   const [animating, setAnimating] = useState(false);
+  const [userInteracted, setUserInteracted] = useState(false);
+  const total = urls.length;
+
+  useEffect(() => {
+    if (userInteracted || total === 0) return;
+    const timer = setInterval(() => {
+      setAnimating(true);
+      setTimeout(() => {
+        setFrontIdx((prev) => (prev - 1 + total) % total);
+        setAnimating(false);
+      }, 420);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [userInteracted, total]);
 
   function getStackPos(imgIdx: number) {
-    const total = polaroidUrls.length;
     return (imgIdx - frontIdx + total) % total;
   }
 
   function handleClick() {
     if (animating) return;
+    setUserInteracted(true);
     setAnimating(true);
     setTimeout(() => {
-      setFrontIdx((prev) => (prev - 1 + polaroidUrls.length) % polaroidUrls.length);
+      setFrontIdx((prev) => (prev - 1 + total) % total);
       setAnimating(false);
     }, 420);
   }
 
   return (
     <div className="relative w-64 h-72 sm:w-80 sm:h-96 select-none">
-      {polaroidUrls.map((url, imgIdx) => {
+      {urls.map((url, imgIdx) => {
         const stackPos = getStackPos(imgIdx);
         const isFront = stackPos === 2;
         const { rotate, x, y } = stackOffsets[stackPos];
-
         return (
           <motion.div
             key={imgIdx}
@@ -91,45 +89,36 @@ const PolaroidStack = () => {
 
 export const Parallax = () => {
   const { t } = useLanguage();
+  const [polaroidUrls, setPolaroidUrls] = useState<string[]>(FALLBACK_URLS);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    supabase
+      .from("illustrations")
+      .select("image_url")
+      .eq("hero_polaroid", true)
+      .limit(3)
+      .then(({ data }) => {
+        if (data && data.length === 3) {
+          setPolaroidUrls(data.map((d) => d.image_url));
+        }
+      });
+  }, []);
+
   return (
-    <div className="relative w-full h-screen flex items-center justify-center bg-background overflow-hidden px-8 sm:px-16">
+    <div
+      ref={sectionRef}
+      className="relative w-full h-screen flex items-center justify-center bg-background overflow-hidden px-8 sm:px-16"
+    >
       <div className="flex flex-col sm:flex-row items-center justify-between gap-12 w-full max-w-6xl mx-auto">
 
-        {/* Left: text */}
-        <motion.div
-          className="flex flex-col gap-5 flex-1"
-          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1, delayChildren: 0.1 } } }}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.p
-            className="text-foreground/30 text-xs tracking-[0.4em] uppercase"
-            variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: 0.7 } } }}
-          >
-            {t.hero.label}
-          </motion.p>
-
-          <div className="overflow-hidden">
-            <motion.h1
-              className="text-[clamp(2.8rem,8vw,7rem)] font-bold text-foreground leading-none tracking-tight"
-              variants={{ hidden: { y: "100%" }, visible: { y: 0, transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1] } } }}
-            >
-              el miedo
-            </motion.h1>
-          </div>
-          <div className="overflow-hidden -mt-2">
-            <motion.h1
-              className="text-[clamp(2.8rem,8vw,7rem)] font-bold text-accent leading-none tracking-tight"
-              variants={{ hidden: { y: "100%" }, visible: { y: 0, transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.08 } } }}
-            >
-              a volar
-            </motion.h1>
-          </div>
-
-          <motion.div
-            className="w-10 h-px bg-foreground/20 mt-1"
-            variants={{ hidden: { scaleX: 0 }, visible: { scaleX: 1, transition: { duration: 0.5 } } }}
-            style={{ originX: 0 }}
+        {/* Left: logo + links */}
+        <div className="flex-1 flex flex-col items-center gap-6">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.webp"
+            alt="el miedo a volar"
+            className="h-72 sm:h-96 w-auto"
           />
 
           <motion.a
@@ -137,7 +126,9 @@ export const Parallax = () => {
             target="_blank"
             rel="noopener noreferrer"
             className="text-foreground/35 text-xs tracking-[0.3em] uppercase hover:text-foreground/60 transition-colors duration-200"
-            variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: 0.7 } } }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.7 }}
           >
             @elmiedoavolar
           </motion.a>
@@ -146,21 +137,33 @@ export const Parallax = () => {
             href="#portfolio"
             onClick={(e) => { e.preventDefault(); document.querySelector("#portfolio")?.scrollIntoView({ behavior: "smooth" }); }}
             className="w-fit px-8 py-3 bg-accent text-white rounded-full text-sm font-semibold tracking-wide hover:bg-accent/90 transition-colors duration-200"
-            variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7 } } }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.7 }}
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.97 }}
           >
             {t.hero.cta}
           </motion.a>
-        </motion.div>
+        </div>
 
         {/* Right: polaroid stack */}
         <div className="flex-1 flex items-center justify-center">
-          <PolaroidStack />
+          <PolaroidStack urls={polaroidUrls} />
         </div>
       </div>
 
-      <ScrollIndicator />
+      {/* Scroll indicator */}
+      <motion.div
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-foreground/30 flex flex-col items-center gap-1 z-50"
+        animate={{ y: [0, 8, 0] }}
+        transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+      >
+        <span className="text-xs tracking-widest uppercase">{t.hero.scroll}</span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 3L8 13M8 13L4 9M8 13L12 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </motion.div>
     </div>
   );
 };

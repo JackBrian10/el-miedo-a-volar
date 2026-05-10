@@ -9,11 +9,11 @@
 }
 
 html.dark {
-  --background: #2c2820;
-  --foreground: #ede8e0;
-  --accent: #e02400;
+  --background: #2e3160;
+  --foreground: #f0e6e3;
+  --accent: #FBAEA1;
   --secondary: #F4AD2E;
-  --card: #38332a;
+  --card: #383b72;
 }
 
 @theme inline {
