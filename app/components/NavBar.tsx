@@ -3,6 +3,7 @@
 import { motion, useMotionValueEvent, useScroll, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { useLanguage } from "../lib/LanguageContext";
+import { useTheme } from "../lib/ThemeContext";
 import type { Locale } from "../lib/translations";
 
 const locales: Locale[] = ["en", "es", "ca"];
@@ -12,6 +13,7 @@ export const NavBar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { scrollY } = useScroll();
   const { locale, setLocale, t } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
 
   const navLinks = [
     { label: t.nav.portfolio, href: "#portfolio" },
@@ -36,7 +38,7 @@ export const NavBar = () => {
       <motion.nav
         className="absolute top-0 z-50 w-full flex items-center justify-between px-4 sm:px-8 h-18"
         animate={{
-          backgroundColor: menuOpen ? "rgba(250, 247, 242, 0.97)" : "rgba(0,0,0,0)",
+          backgroundColor: menuOpen ? "var(--background)" : "rgba(0,0,0,0)",
           backdropFilter: menuOpen ? "blur(12px)" : "blur(0px)",
         }}
         transition={{ duration: 0.3 }}
@@ -46,7 +48,7 @@ export const NavBar = () => {
           <img
             src="/logo.webp"
             alt="el miedo a volar"
-            className="h-14 w-auto"
+            className="h-20 w-auto"
             style={{ mixBlendMode: scrolled ? "normal" : "multiply" }}
           />
         </a>
@@ -61,7 +63,7 @@ export const NavBar = () => {
             >
               <motion.span
                 className="block"
-                animate={{ color: scrolled ? "rgba(28,26,22,0.8)" : "rgba(255,255,255,0.9)" }}
+                animate={{ color: "var(--foreground)" }}
                 whileHover={{ color: "#C91F00", y: -1 }}
                 transition={{ duration: 0.15 }}
               >
@@ -71,6 +73,23 @@ export const NavBar = () => {
             </a>
           ))}
 
+          {/* Theme toggle */}
+          <button
+            onClick={toggleTheme}
+            className="text-foreground/50 hover:text-accent transition-colors duration-150"
+            aria-label="Toggle theme"
+          >
+            {theme === "light" ? (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+              </svg>
+            )}
+          </button>
+
           {/* Language switcher */}
           <div className="flex items-center gap-1">
             {locales.map((l, i) => (
@@ -79,14 +98,14 @@ export const NavBar = () => {
                   onClick={() => setLocale(l)}
                   className={`text-xs font-semibold tracking-wide uppercase transition-all duration-150 ${
                     locale === l
-                      ? scrolled ? "text-accent" : "text-white"
-                      : scrolled ? "text-foreground/40 hover:text-accent" : "text-white/40 hover:text-white"
+                      ? "text-accent"
+                      : "text-foreground/40 hover:text-accent"
                   }`}
                 >
                   {l}
                 </button>
                 {i < locales.length - 1 && (
-                  <span className={`text-xs ${scrolled ? "text-foreground/20" : "text-white/20"}`}>|</span>
+                  <span className="text-xs text-foreground/20">|</span>
                 )}
               </span>
             ))}
@@ -101,19 +120,19 @@ export const NavBar = () => {
         >
           <motion.span
             className="block w-6 h-0.5 rounded-full"
-            style={{ backgroundColor: scrolled || menuOpen ? "#1c1a16" : "white" }}
+            style={{ backgroundColor: "var(--foreground)" }}
             animate={menuOpen ? { rotate: 45, y: 8 } : { rotate: 0, y: 0 }}
             transition={{ duration: 0.25 }}
           />
           <motion.span
             className="block w-6 h-0.5 rounded-full"
-            style={{ backgroundColor: scrolled || menuOpen ? "#1c1a16" : "white" }}
+            style={{ backgroundColor: "var(--foreground)" }}
             animate={menuOpen ? { opacity: 0 } : { opacity: 1 }}
             transition={{ duration: 0.2 }}
           />
           <motion.span
             className="block w-6 h-0.5 rounded-full"
-            style={{ backgroundColor: scrolled || menuOpen ? "#1c1a16" : "white" }}
+            style={{ backgroundColor: "var(--foreground)" }}
             animate={menuOpen ? { rotate: -45, y: -8 } : { rotate: 0, y: 0 }}
             transition={{ duration: 0.25 }}
           />
@@ -124,7 +143,7 @@ export const NavBar = () => {
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            className="fixed top-16 left-0 w-full z-40 sm:hidden bg-background/97 backdrop-blur-md px-6 py-6 flex flex-col gap-5 border-b border-accent/10"
+            className="fixed top-16 left-0 w-full z-40 sm:hidden bg-background backdrop-blur-md px-6 py-6 flex flex-col gap-5 border-b border-accent/10"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
@@ -140,6 +159,23 @@ export const NavBar = () => {
                 {link.label}
               </a>
             ))}
+
+            {/* Mobile theme toggle */}
+            <button
+              onClick={toggleTheme}
+              className="flex items-center gap-2 text-foreground/60 text-sm hover:text-accent transition-colors duration-150"
+            >
+              {theme === "light" ? (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+                </svg>
+              )}
+              {theme === "light" ? "Dark mode" : "Light mode"}
+            </button>
 
             {/* Mobile language switcher */}
             <div className="flex items-center gap-2 pt-2 border-t border-accent/10">

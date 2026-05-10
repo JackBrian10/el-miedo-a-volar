@@ -10,7 +10,7 @@ export const AboutMe = () => {
   const { t } = useLanguage();
 
   return (
-    <div className="w-full py-24 px-6 bg-[#f5efe6]" ref={ref}>
+    <div className="w-full py-24 px-6 bg-card" ref={ref}>
       <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         {/* Left: text */}
         <motion.div

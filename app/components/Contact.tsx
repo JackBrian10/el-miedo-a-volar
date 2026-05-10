@@ -51,7 +51,7 @@ export const Contact = () => {
 
   return (
     <>
-      <div className="w-full py-24 px-6 bg-[#f5efe6]">
+      <div className="w-full py-24 px-6 bg-card">
         <motion.div
           className="max-w-2xl mx-auto"
           initial={{ opacity: 0, y: 40 }}

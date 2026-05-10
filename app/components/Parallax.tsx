@@ -1,67 +1,14 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import React, { useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { useState } from "react";
 import { useLanguage } from "../lib/LanguageContext";
 
-// ─── Shared text content ────────────────────────────────────────────────────
-
-const HeroText = ({ dark = true }: { dark?: boolean }) => {
-  const { t } = useLanguage();
-  const text = dark ? "text-white" : "text-foreground";
-  const sub = dark ? "text-white/50" : "text-foreground/50";
-  const border = dark ? "border-white/70 text-white hover:bg-white hover:text-[#1a1428]" : "border-foreground/40 text-foreground hover:bg-foreground hover:text-background";
-
-  return (
-    <motion.div
-      className="relative flex flex-col items-center gap-6 text-center px-4"
-      style={{ zIndex: 50 }}
-      variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.18, delayChildren: 0.4 } } }}
-      initial="hidden"
-      animate="visible"
-    >
-      <motion.p
-        className={`${sub} text-sm font-medium tracking-[0.25em] uppercase drop-shadow-md`}
-        variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 1, ease: "easeOut" } } }}
-      >
-        {t.hero.label}
-      </motion.p>
-      <motion.h1
-        className={`text-5xl sm:text-7xl font-bold ${text}`}
-        style={{ textShadow: dark ? "0 2px 20px rgba(0,0,0,0.8), 0 0 60px rgba(255,150,50,0.3)" : "none" }}
-        variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 1, ease: "easeOut" } } }}
-      >
-        El miedo a volar
-      </motion.h1>
-      <motion.a
-        href="https://www.instagram.com/elmiedoavolar"
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`${sub} text-lg tracking-widest drop-shadow-md hover:opacity-100 transition-opacity duration-200`}
-        variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 1, ease: "easeOut" } } }}
-      >
-        @elmiedoavolar
-      </motion.a>
-      <motion.a
-        href="#portfolio"
-        onClick={(e) => { e.preventDefault(); document.querySelector("#portfolio")?.scrollIntoView({ behavior: "smooth" }); }}
-        className={`mt-2 px-8 py-3 border-2 ${border} rounded-full font-semibold text-sm tracking-wide transition-colors duration-200`}
-        variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 1, ease: "easeOut" } } }}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.97 }}
-      >
-        {t.hero.cta}
-      </motion.a>
-    </motion.div>
-  );
-};
-
-const ScrollIndicator = ({ dark = true }: { dark?: boolean }) => {
+const ScrollIndicator = () => {
   const { t } = useLanguage();
   return (
     <motion.div
-      className={`absolute bottom-8 left-1/2 -translate-x-1/2 ${dark ? "text-white/40" : "text-foreground/40"} flex flex-col items-center gap-1`}
-      style={{ zIndex: 50 }}
+      className="absolute bottom-8 left-1/2 -translate-x-1/2 text-foreground/30 flex flex-col items-center gap-1 z-50"
       animate={{ y: [0, 8, 0] }}
       transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
     >
@@ -73,152 +20,147 @@ const ScrollIndicator = ({ dark = true }: { dark?: boolean }) => {
   );
 };
 
-// ─── Variant A: Lightweight parallax (2 layers) ─────────────────────────────
+const polaroidUrls = [
+  "https://kowwnptiiukgcrsghhbn.supabase.co/storage/v1/object/public/illustrations/ilustracion_sin_titulo_4_1.webp",
+  "https://kowwnptiiukgcrsghhbn.supabase.co/storage/v1/object/public/illustrations/4.webp",
+  "https://kowwnptiiukgcrsghhbn.supabase.co/storage/v1/object/public/illustrations/ilustracion_sin_titulo_15.webp",
+];
 
-const VariantA = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end start"] });
-  const skyY = useTransform(scrollYProgress, [0, 1], ["0%", "-8%"]);
-  const fairyY = useTransform(scrollYProgress, [0, 1], ["0%", "-48%"]);
+const stackOffsets = [
+  { rotate: -6, x: -20, y: 10 },
+  { rotate: 3,  x:  20, y: -10 },
+  { rotate: 10, x:  50, y: 20 },
+];
+
+const PolaroidStack = () => {
+  const [frontIdx, setFrontIdx] = useState(2);
+  const [animating, setAnimating] = useState(false);
+
+  function getStackPos(imgIdx: number) {
+    const total = polaroidUrls.length;
+    return (imgIdx - frontIdx + total) % total;
+  }
+
+  function handleClick() {
+    if (animating) return;
+    setAnimating(true);
+    setTimeout(() => {
+      setFrontIdx((prev) => (prev - 1 + polaroidUrls.length) % polaroidUrls.length);
+      setAnimating(false);
+    }, 420);
+  }
 
   return (
-    <div ref={sectionRef} className="relative w-full h-screen flex items-center justify-center bg-[#1a1428]" style={{ clipPath: "inset(0)" }}>
-      <motion.div className="absolute inset-x-0 pointer-events-none" style={{ y: skyY, top: "-15%", height: "130%", zIndex: 1 }}>
-        <img src="/parallax_layers/layer_02_sky.webp" alt="" className="w-full h-full object-cover" loading="eager" />
-      </motion.div>
-      <motion.div className="absolute inset-x-0 pointer-events-none" style={{ y: fairyY, top: "-15%", height: "130%", zIndex: 2 }}>
-        <img src="/parallax_layers/layer_09_fairy.webp" alt="" className="w-full h-full object-cover" loading="eager" />
-      </motion.div>
-      <div className="absolute bottom-0 left-0 w-full h-16 pointer-events-none" style={{ zIndex: 40, background: "linear-gradient(to bottom, transparent, #faf7f2)" }} />
-      <HeroText />
-      <ScrollIndicator />
+    <div className="relative w-64 h-72 sm:w-80 sm:h-96 select-none">
+      {polaroidUrls.map((url, imgIdx) => {
+        const stackPos = getStackPos(imgIdx);
+        const isFront = stackPos === 2;
+        const { rotate, x, y } = stackOffsets[stackPos];
+
+        return (
+          <motion.div
+            key={imgIdx}
+            className={`absolute bg-card p-3 pb-8 shadow-xl ${isFront ? "cursor-pointer" : ""}`}
+            style={{ top: 0, left: 0, width: "100%" }}
+            animate={
+              isFront && animating
+                ? { x: 220, y: -80, rotate: 30, opacity: 0, zIndex: 10, scale: 0.9 }
+                : { x, y, rotate, opacity: 1, zIndex: stackPos, scale: 1 }
+            }
+            transition={{ duration: isFront && animating ? 0.38 : 0.45, ease: isFront && animating ? "easeIn" : "easeOut" }}
+            whileHover={isFront && !animating ? { scale: 1.04, rotate: 0, transition: { duration: 0.25 } } : {}}
+            onClick={isFront ? handleClick : undefined}
+          >
+            <img src={url} alt="" className="w-full h-48 sm:h-60 object-cover" loading="eager" />
+          </motion.div>
+        );
+      })}
+      <motion.p
+        className="absolute -bottom-8 left-0 right-0 text-center text-foreground/25 text-xs tracking-widest flex items-center justify-center gap-2"
+        animate={{ x: [0, 4, 0] }}
+        transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+      >
+        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l6-6m0 0l-6-6m6 6H9a6 6 0 000 12h3" />
+        </svg>
+        tap the photo to browse
+      </motion.p>
     </div>
   );
 };
-
-// ─── Variant B: Single image background, no JS parallax ─────────────────────
-
-const VariantB = () => (
-  <div className="relative w-full h-screen flex items-center justify-center overflow-hidden bg-[#1a1428]">
-    <img
-      src="https://kowwnptiiukgcrsghhbn.supabase.co/storage/v1/object/public/illustrations/ilustracion_sin_titulo_4_1.webp"
-      alt=""
-      className="absolute inset-0 w-full h-full object-cover opacity-60"
-      loading="eager"
-    />
-    <div className="absolute inset-0 bg-gradient-to-t from-[#1a1428] via-[#1a1428]/30 to-transparent" />
-    <div className="absolute bottom-0 left-0 w-full h-16 pointer-events-none" style={{ zIndex: 40, background: "linear-gradient(to bottom, transparent, #faf7f2)" }} />
-    <div className="relative z-10">
-      <HeroText />
-    </div>
-    <ScrollIndicator />
-  </div>
-);
-
-// ─── Variant C: Split layout ─────────────────────────────────────────────────
-
-const VariantC = () => {
-  const { t } = useLanguage();
-  return (
-    <div className="relative w-full h-screen flex items-center bg-[#faf7f2] overflow-hidden">
-      {/* Left: text */}
-      <motion.div
-        className="relative z-10 flex flex-col gap-6 px-10 sm:px-20 max-w-xl"
-        variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.15, delayChildren: 0.3 } } }}
-        initial="hidden"
-        animate="visible"
-      >
-        <motion.p
-          className="text-foreground/40 text-sm font-medium tracking-[0.25em] uppercase"
-          variants={{ hidden: { opacity: 0, x: -30 }, visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: "easeOut" } } }}
-        >
-          {t.hero.label}
-        </motion.p>
-        <motion.h1
-          className="text-5xl sm:text-6xl font-bold text-foreground leading-tight"
-          variants={{ hidden: { opacity: 0, x: -30 }, visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: "easeOut" } } }}
-        >
-          El miedo<br />a volar
-        </motion.h1>
-        <motion.div
-          className="w-12 h-0.5 bg-accent"
-          variants={{ hidden: { opacity: 0, scaleX: 0 }, visible: { opacity: 1, scaleX: 1, transition: { duration: 0.6, ease: "easeOut" } } }}
-          style={{ originX: 0 }}
-        />
-        <motion.a
-          href="https://www.instagram.com/elmiedoavolar"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-foreground/40 text-base tracking-widest hover:text-foreground/70 transition-colors duration-200"
-          variants={{ hidden: { opacity: 0, x: -30 }, visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: "easeOut" } } }}
-        >
-          @elmiedoavolar
-        </motion.a>
-        <motion.a
-          href="#portfolio"
-          onClick={(e) => { e.preventDefault(); document.querySelector("#portfolio")?.scrollIntoView({ behavior: "smooth" }); }}
-          className="w-fit mt-2 px-8 py-3 bg-accent text-white rounded-full font-semibold text-sm tracking-wide hover:bg-accent/90 transition-colors duration-200"
-          variants={{ hidden: { opacity: 0, x: -30 }, visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: "easeOut" } } }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.97 }}
-        >
-          {t.hero.cta}
-        </motion.a>
-      </motion.div>
-
-      {/* Right: illustration */}
-      <motion.div
-        className="absolute right-0 top-0 h-full w-1/2 sm:w-[55%]"
-        initial={{ opacity: 0, x: 60 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
-      >
-        <img
-          src="/parallax_layers/layer_09_fairy.webp"
-          alt=""
-          className="w-full h-full object-cover"
-          loading="eager"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#faf7f2] via-[#faf7f2]/20 to-transparent" />
-      </motion.div>
-
-      <div className="absolute bottom-0 left-0 w-full h-16 pointer-events-none" style={{ zIndex: 40, background: "linear-gradient(to bottom, transparent, #faf7f2)" }} />
-      <ScrollIndicator dark={false} />
-    </div>
-  );
-};
-
-// ─── Switcher ────────────────────────────────────────────────────────────────
-
-const variants = [
-  { key: "A", label: "A — Lightweight parallax" },
-  { key: "B", label: "B — Single image" },
-  { key: "C", label: "C — Split layout" },
-] as const;
-
-type VariantKey = "A" | "B" | "C";
 
 export const Parallax = () => {
-  const [active, setActive] = useState<VariantKey>("A");
-
+  const { t } = useLanguage();
   return (
-    <div className="relative">
-      {/* Variant picker */}
-      <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[999] flex gap-2 bg-black/80 backdrop-blur-sm rounded-full px-4 py-2">
-        {variants.map((v) => (
-          <button
-            key={v.key}
-            onClick={() => setActive(v.key)}
-            className={`text-xs px-3 py-1 rounded-full font-semibold transition-colors duration-150 ${active === v.key ? "bg-white text-black" : "text-white/60 hover:text-white"}`}
+    <div className="relative w-full h-screen flex items-center justify-center bg-background overflow-hidden px-8 sm:px-16">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-12 w-full max-w-6xl mx-auto">
+
+        {/* Left: text */}
+        <motion.div
+          className="flex flex-col gap-5 flex-1"
+          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1, delayChildren: 0.1 } } }}
+          initial="hidden"
+          animate="visible"
+        >
+          <motion.p
+            className="text-foreground/30 text-xs tracking-[0.4em] uppercase"
+            variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: 0.7 } } }}
           >
-            {v.label}
-          </button>
-        ))}
+            {t.hero.label}
+          </motion.p>
+
+          <div className="overflow-hidden">
+            <motion.h1
+              className="text-[clamp(2.8rem,8vw,7rem)] font-bold text-foreground leading-none tracking-tight"
+              variants={{ hidden: { y: "100%" }, visible: { y: 0, transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1] } } }}
+            >
+              el miedo
+            </motion.h1>
+          </div>
+          <div className="overflow-hidden -mt-2">
+            <motion.h1
+              className="text-[clamp(2.8rem,8vw,7rem)] font-bold text-accent leading-none tracking-tight"
+              variants={{ hidden: { y: "100%" }, visible: { y: 0, transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.08 } } }}
+            >
+              a volar
+            </motion.h1>
+          </div>
+
+          <motion.div
+            className="w-10 h-px bg-foreground/20 mt-1"
+            variants={{ hidden: { scaleX: 0 }, visible: { scaleX: 1, transition: { duration: 0.5 } } }}
+            style={{ originX: 0 }}
+          />
+
+          <motion.a
+            href="https://www.instagram.com/elmiedoavolar"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-foreground/35 text-xs tracking-[0.3em] uppercase hover:text-foreground/60 transition-colors duration-200"
+            variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: 0.7 } } }}
+          >
+            @elmiedoavolar
+          </motion.a>
+
+          <motion.a
+            href="#portfolio"
+            onClick={(e) => { e.preventDefault(); document.querySelector("#portfolio")?.scrollIntoView({ behavior: "smooth" }); }}
+            className="w-fit px-8 py-3 bg-accent text-white rounded-full text-sm font-semibold tracking-wide hover:bg-accent/90 transition-colors duration-200"
+            variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7 } } }}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            {t.hero.cta}
+          </motion.a>
+        </motion.div>
+
+        {/* Right: polaroid stack */}
+        <div className="flex-1 flex items-center justify-center">
+          <PolaroidStack />
+        </div>
       </div>
 
-      {active === "A" && <VariantA />}
-      {active === "B" && <VariantB />}
-      {active === "C" && <VariantC />}
+      <ScrollIndicator />
     </div>
   );
 };
