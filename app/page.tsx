@@ -1,4 +1,5 @@
 import { AboutMe } from "./components/AboutMe";
+import { BackToTop } from "./components/BackToTop";
 import { Commissions } from "./components/Commissions";
 import { Contact } from "./components/Contact";
 import { Illustrations } from "./components/Illustrations";
@@ -22,6 +23,7 @@ export default function Home() {
       <section id="contact">
         <Contact />
       </section>
+      <BackToTop />
     </div>
   );
 }
