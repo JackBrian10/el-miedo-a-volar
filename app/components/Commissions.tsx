@@ -6,10 +6,9 @@ import { useLanguage } from "../lib/LanguageContext";
 
 const tierIcons = ["🎨", "🖌️"];
 
-// TODO: replace with real sample image URLs
 const tierSamples = [
-  "/parallax_layers/layer_09_fairy.webp",
-  "/parallax_layers/layer_09_fairy.webp",
+  "https://kowwnptiiukgcrsghhbn.supabase.co/storage/v1/object/public/illustrations/ilustracion_sin_titulo_4_1.webp",
+  "https://kowwnptiiukgcrsghhbn.supabase.co/storage/v1/object/public/illustrations/4.webp",
 ];
 
 const containerVariants = {
